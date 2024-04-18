@@ -54,9 +54,7 @@ We integrate great-expectations into our PySpark pipeline to leverage its data q
 
 The quality report includes a summary of expectation results, indicating the success or failure of each validation criteria. Additionally, detailed insights may be provided for failed expectations to assist in identifying and resolving data quality issues.
 
-# Scalable Data Model for Taxi Service Domain - Yassir Super App
-
-In the dynamic landscape of Yassir, a Super App offering various services including taxi, food and grocery delivery, and last-mile delivery, designing a scalable and optimized data model for the taxi service domain is essential to cater to ad hoc, self-serve, and advanced analytics requests efficiently.
+# Scalable Data Model for Taxi Service Domain
 
 ## Data Model Entities
 

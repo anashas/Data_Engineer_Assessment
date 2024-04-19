@@ -26,7 +26,7 @@ To manage schema evolution dynamically in our data pipelines, we propose the fol
 
 To address the data quality validation requirements, we propose the following design solution:
 
-1. **Selection of Data Quality Framework**: Utilize an open-source data quality framework compatible with PySpark to facilitate comprehensive data validation and profiling. We choose great-expectations due to its robust features and support for PySpark integration.
+1. **Selection of Data Quality Framework**: Utilize an open-source data quality framework compatible with PySpark to facilitate comprehensive data validation and profiling. We choose **great-expectations** due to its robust features and support for PySpark integration.
 
 2. **Expectation Definitions**: Define a set of data quality expectations based on the characteristics of the dataset and business requirements. These expectations include criteria such as column count, row count, column existence, value ranges, and uniqueness.
 
@@ -38,7 +38,7 @@ To address the data quality validation requirements, we propose the following de
 
 ### Framework Integration
 
-We integrate great-expectations into our PySpark pipeline to leverage its data quality validation features.
+We integrate **great-expectations** into our PySpark pipeline to leverage its data quality validation features.
 
 ### Expectation Definitions
 

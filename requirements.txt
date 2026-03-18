@@ -1,4 +1,5 @@
 pandas==1.5.1
 pyspark==3.5.1
 great-expectations==0.18.12
-python==3.9.13
+findspark==2.0.1
+jupyter==1.0.0

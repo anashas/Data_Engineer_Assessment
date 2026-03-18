@@ -1,123 +1,183 @@
-# Dynamic Schema Evolution in PySpark Pipeline
+# Data Engineering Assessment
 
-## Design Solution
+A hands-on showcase of three core data engineering competencies: **dynamic schema evolution**, **data quality validation**, and **scalable data modelling** — all built with PySpark and Python.
 
-To manage schema evolution dynamically in our data pipelines, we propose the following solution:
+---
 
-1. **Schema Tracking**: Maintain a schema store to track different versions of the schema. This schema store will contain mappings of schema versions to their respective schemas.
+## Table of Contents
 
-2. **Schema Evolution Functions**: Implement functions to handle schema evolution tasks, such as adding new fields and updating existing field types. These functions should be designed to operate on PySpark DataFrames and modify their schemas accordingly.
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Components](#components)
+  - [1. Dynamic Schema Evolution](#1-dynamic-schema-evolution)
+  - [2. Data Quality Validation](#2-data-quality-validation)
+  - [3. Scalable Data Modelling](#3-scalable-data-modelling)
+- [Dataset](#dataset)
+- [Setup & Installation](#setup--installation)
+- [Running the Notebooks](#running-the-notebooks)
 
-3. **Dynamic Schema Inference**: Utilize PySpark's dynamic schema inference capabilities while reading data from sources. This allows us to infer the schema of incoming data without explicitly defining it.
+---
 
-4. **Versioning**: Keep track of different versions of the schema to ensure traceability and manage schema changes over time.
+## Overview
 
-## PySpark Pipeline Implementation
+This project demonstrates production-ready data engineering patterns applied to a real-world retail dataset (~540K transactions). It is structured into three independent modules, each tackling a distinct challenge commonly faced in modern data pipelines.
 
-### Use Cases Considered
+| Module | Key Skill |
+|---|---|
+| Schema Evolution | Backward-compatible schema changes in PySpark |
+| Data Quality | Automated validation with Great Expectations |
+| Data Modelling | Star-schema design for a taxi-service domain |
 
-1. **Addition of New Data Fields**: When new fields are introduced in the source records, our pipeline should be able to accommodate these changes dynamically.
+---
 
-2. **Update of Existing Field Data Types**: If the data type of an existing field changes in the source records, our pipeline should handle this evolution seamlessly.
+## Tech Stack
 
-# Data Quality Validation in PySpark Pipeline
+- **Python** 3.9
+- **Apache Spark / PySpark** 3.5
+- **Great Expectations** 0.18
+- **Pandas** 1.5
+- **Jupyter Notebooks**
+- **SQL** (analytical KPI queries)
 
-## Design Solution
+---
 
-To address the data quality validation requirements, we propose the following design solution:
+## Project Structure
 
-1. **Selection of Data Quality Framework**: Utilize an open-source data quality framework compatible with PySpark to facilitate comprehensive data validation and profiling. We choose **great-expectations** due to its robust features and support for PySpark integration.
+```
+Data_Engineer_Assessment/
+│
+├── src/
+│   ├── utils.py                                        # Reusable PySpark helper functions
+│   ├── Data_Schema_Enforcement_with_PySpark.ipynb      # Module 1 – Schema Evolution
+│   ├── Data_Quality_with_PySpark.ipynb                 # Module 2 – Data Quality
+│   └── Data_Modelling.ipynb                            # Module 3 – Data Modelling
+│
+├── out/                                                # Output directory for reports & CSVs
+├── Online Retail.csv                                   # Source dataset (UCI Online Retail)
+├── requirements.txt
+└── README.md
+```
 
-2. **Expectation Definitions**: Define a set of data quality expectations based on the characteristics of the dataset and business requirements. These expectations include criteria such as column count, row count, column existence, value ranges, and uniqueness.
+---
 
-3. **Implementation of Expectations**: Develop PySpark functions to validate the defined expectations against the dataset. These functions leverage PySpark's capabilities for efficient data processing and validation.
+## Components
 
-4. **Reporting and Visualization**: Generate a quality report summarizing the results of data quality validation after each pipeline run. The report should provide insights into the overall quality of the dataset and highlight any issues or anomalies detected.
+### 1. Dynamic Schema Evolution
 
-## PySpark Pipeline Implementation
+**Notebook:** `src/Data_Schema_Enforcement_with_PySpark.ipynb`
+**Helper functions:** `src/utils.py`
 
-### Framework Integration
+Implements a lightweight schema versioning system on top of PySpark DataFrames. The pipeline handles two of the most common real-world schema change scenarios without breaking downstream consumers:
 
-We integrate **great-expectations** into our PySpark pipeline to leverage its data quality validation features.
+- **New field addition** — dynamically appends a column with a configurable default value and data type (e.g. adding a `City` field to an existing retail dataset).
+- **Field type update** — safely casts an existing column to a new type (e.g. promoting `Quantity` from `IntegerType` to `DoubleType`).
 
-### Expectation Definitions
+Schema snapshots are stored in a versioned dictionary (`schema_store`), providing full traceability of every structural change across pipeline runs.
 
-- **Table Column Count**: Ensure the dataset has a specified range of columns.
-- **Table Row Count**: Validate the number of rows falls within a specified range.
-- **Column Existence**: Check for the existence of specific columns in the dataset.
-- **Ordered Column List**: Verify the order of columns against a predefined list.
-- **Column Value Range**: Validate the range of values for a particular column.
-- **Column Min/Max Range**: Check if column values fall within specified minimum and maximum ranges.
-- **Unique Column Values**: Ensure uniqueness of values within a column.
+**Key design decisions:**
+- Schema mutations are guarded by existence checks to prevent redundant operations.
+- Each schema version is persisted alongside the data it describes, enabling rollback and audit.
+- The evolved DataFrame is written out as CSV for downstream consumption.
 
-### Quality Report Structure
+---
 
-The quality report includes a summary of expectation results, indicating the success or failure of each validation criteria. Additionally, detailed insights may be provided for failed expectations to assist in identifying and resolving data quality issues.
+### 2. Data Quality Validation
 
-# Scalable Data Model for Taxi Service Domain
+**Notebook:** `src/Data_Quality_with_PySpark.ipynb`
+**Helper functions:** `src/utils.py`
 
-## Data Model Entities
+Integrates **Great Expectations** with PySpark to provide automated, rule-based data quality checks. A suite of seven expectations is run against the Online Retail dataset on each pipeline execution, and results are summarised in a structured quality report saved to disk.
 
-### Users
-- UserID
-- UserType
-- Name
-- Email
-- Phone
+**Expectations implemented:**
 
-### Trips
-- TripID
-- UserID (Passenger)
-- DriverID
-- VehicleID
-- StartLocationID
-- EndLocationID
-- StartTime
-- EndTime
-- Fare
-- Distance
+| Expectation | Description |
+|---|---|
+| Table Column Count | Column count falls within an expected range |
+| Table Row Count | Row count falls within an expected range |
+| Column Existence | A required column is present in the schema |
+| Ordered Column List | Columns appear in the expected order |
+| Column Value Range | All values in a column are within bounds |
+| Column Min/Max Range | Column min and max are within bounds |
+| Unique Column Values | No duplicate values exist in a column |
 
-### Vehicles
-- VehicleID
-- DriverID
-- Model
-- Registration
+Results are written to `data_quality_report.csv` for reporting and monitoring purposes.
 
-### Locations
-- LocationID
-- Name
-- Coordinates
-- Address
+---
 
-## Relationships
-- Users to Trips: Each trip involves a user as a passenger and a driver.
-- Vehicles to Trips: Each trip is associated with a vehicle.
-- Locations to Trips: Start and end locations of each trip.
-- Users to Vehicles: Each driver is associated with one or more vehicles.
+### 3. Scalable Data Modelling
 
-## Physical Data Model
+**Notebook:** `src/Data_Modelling.ipynb`
 
-- **Users**: User information
-- **Trips**: Trip details
-- **Vehicles**: Vehicle information
-- **Locations**: Location details
+Designs a scalable relational data model for a **taxi service** platform and defines analytical KPIs backed by SQL queries.
 
-## Key Performance Indicators (KPIs)
+**Entities:**
 
-1. **Average trip distance per day/week/month**
-2. **Total revenue generated per driver**
-3. **Busiest times of the day/week/month for trips**
-4. **Average waiting time for passengers**
-5. **Most frequently visited locations**
-6. **Percentage of completed trips vs. canceled trips**
-7. **Driver utilization rate**
+| Entity | Key Attributes |
+|---|---|
+| `Users` | UserID, UserType, Name, Email, Phone |
+| `Trips` | TripID, UserID, DriverID, VehicleID, StartLocationID, EndLocationID, StartTime, EndTime, Fare, Distance |
+| `Vehicles` | VehicleID, DriverID, Model, Registration |
+| `Locations` | LocationID, Name, Coordinates, Address |
 
-- The data used for testing and demonstration purposes is sourced from the [Online Retail Dataset](https://archive.ics.uci.edu/dataset/352/online+retail) available at UCI Irvine Machine Learning Repository.
+**Analytical KPIs with SQL:**
 
+- Average trip distance per day / week / month
+- Total revenue generated per driver
+- Busiest hours of the day for trips
+- Average passenger waiting time
+- Most frequently visited pickup locations
+- Completed vs. cancelled trip ratio
+- Driver utilisation rate
 
+---
 
+## Dataset
 
+The **Online Retail Dataset** from the [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/352/online+retail) is used for testing and demonstration.
 
+- ~540,000 transactions from a UK-based online retailer (2010–2011)
+- 8 columns: `InvoiceNo`, `StockCode`, `Description`, `Quantity`, `InvoiceDate`, `UnitPrice`, `CustomerID`, `Country`
 
+---
 
+## Setup & Installation
 
+**Prerequisites:** Python 3.9, Java 8+ (required by Spark), Jupyter
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/anashas/Data_Engineer_Assessment.git
+   cd Data_Engineer_Assessment
+   ```
+
+2. **Create and activate a virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate        # macOS / Linux
+   venv\Scripts\activate           # Windows
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Start Jupyter**
+   ```bash
+   jupyter notebook
+   ```
+
+---
+
+## Running the Notebooks
+
+Open and run the notebooks in the following order from the `src/` directory:
+
+| Step | Notebook | Purpose |
+|---|---|---|
+| 1 | `Data_Schema_Enforcement_with_PySpark.ipynb` | Schema evolution demo |
+| 2 | `Data_Quality_with_PySpark.ipynb` | Data quality validation |
+| 3 | `Data_Modelling.ipynb` | Data model & KPI queries |
+
+> **Note:** Ensure `Online Retail.csv` is present in the root directory before running the notebooks. Output files will be saved to the `out/` directory.

@@ -1,3 +1,25 @@
+"""
+utils.py
+--------
+Reusable PySpark utility functions for two pipeline modules:
+ 
+  1. Schema Evolution  — add new fields and update existing field types in a
+                         PySpark DataFrame while keeping a versioned schema store.
+ 
+  2. Data Quality      — thin wrappers around Great Expectations' SparkDFDataset
+                         API that encode the project's standard validation rules
+                         and produce a structured quality report.
+ 
+Usage:
+    from utils import (
+        add_new_field, update_field_type,
+        initialize_df, expect_table_column_count, ...
+    )
+"""
+
+
+
+
 import great_expectations as ge
 from great_expectations.dataset.sparkdf_dataset import SparkDFDataset
 import pyspark

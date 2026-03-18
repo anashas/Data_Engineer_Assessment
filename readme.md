@@ -1,4 +1,4 @@
-# Data Engineering Assessment
+# pyspark-data-engineering-portfolio
 
 A hands-on showcase of three core data engineering competencies: **dynamic schema evolution**, **data quality validation**, and **scalable data modelling** — all built with PySpark and Python.
 
